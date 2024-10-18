@@ -34,6 +34,8 @@ import validators
 import time
 import re
 from gtts import gTTS
+# from streamlit.components.v1 import html
+import speech_recognition as sr
 
 import validators.url
 
@@ -47,7 +49,7 @@ st.title("Triumo Chatbot: App With Multiple Functionalities")
 st.subheader("Choose an option to proceed:")
 
 # Options
-option = st.selectbox("Choose an action:", ["Select", "Ask Queries" , "Summarise the PDF And Ask Questions"])
+option = st.selectbox("Choose an action:", ["Select", "Chat With LLM" , "Summarize a URL" , "Summarise the PDF And Ask Questions" , "Code-Problem Solver" , "Web Scrape and Search the text" , "ML Evaluation and PDF Generation"])
 
 # Initialize the Groq model
 llm = ChatGroq(model="gemma2-9b-it", groq_api_key=api_key)
@@ -65,49 +67,88 @@ arxiv = ArxivQueryRun(api_wrapper=api_wrapper_arxiv)
 
 search = DuckDuckGoSearchResults(name="Search")
 
-retriever_tool = None
+retriever_tool = None  # Initialize as None in case no file is uploaded
 embeddings = OllamaEmbeddings()
 
-# ------------------------- Normal Chatbot Functonality ------------------------------ #
+# Function to handle speech input using SpeechRecognition
+def recognize_speech():
+    recognizer = sr.Recognizer()  # Create a recognizer instance
+    mic = sr.Microphone()  # Set up the microphone
+
+    try:
+        with mic as source:  # Use microphone as source
+            st.info("Listening... Please speak into the microphone.")
+            recognizer.adjust_for_ambient_noise(source)  # Adjust for background noise
+            audio = recognizer.listen(source)  # Capture audio from the microphone
+
+        # Recognize speech using Google Speech Recognition
+        transcript = recognizer.recognize_google(audio)
+        st.success(f"You said: {transcript}")
+        return transcript
+    except sr.UnknownValueError:
+        st.error("Sorry, I could not understand the audio.")
+    except sr.RequestError:
+        st.error("Sorry, there was an issue with the speech recognition service.")
+    
+    return ""
+
+# ------------------------- Normal Chatbot Functionality ------------------------------ #
 if option == "Chat With LLM":
+
     # Initialize session state for messages (conversation history)
-  if "messages" not in st.session_state:
-    st.session_state["messages"] = [
-        {"role": "assistant", "content": "Hi, I am a chatbot who can search the web. How can I assist you?"}
-    ]
+    if "messages" not in st.session_state:
+        st.session_state["messages"] = [
+            {"role": "assistant", "content": "Hi, I am a chatbot who can search the web. How can I assist you?"}
+        ]
 
-  # Display previous messages in the chat
-  for msg in st.session_state.messages:
-    st.chat_message(msg["role"]).write(msg['content'])
+    # Display previous messages in the chat
+    for msg in st.session_state.messages:
+        st.chat_message(msg["role"]).write(msg['content'])  
 
-  # Handling the user prompt
-  if prompt := st.chat_input(placeholder="Ask anything..."):
-    # Add the user's message to the session state
-    st.session_state.messages.append({"role": "user", "content": prompt})
-    st.chat_message("user").write(prompt)
+    # Speech recognition and chat input
+    options = st.selectbox("Choose an action:", ["Speak your message" , "Type your message"])
 
-    # Initialize the model and tools
-    llm = ChatGroq(api_key=api_key, model="gemma2-9b-it", streaming=True)
+    spoken_text = ""  # Initialize spoken_text to avoid NameError
 
-    # Include available tools in the agent
-    tools = [arxiv, wiki, search]
+    if options == "Speak your message":
+        if st.button("🎤 Speak"):
+            spoken_text = recognize_speech()  # Get spoken input
+            if spoken_text:
+                st.session_state.messages.append({"role": "user", "content": spoken_text})
+                st.chat_message("user").write(spoken_text)
 
-    # Create the search agent
-    search_agent = initialize_agent(
-        tools, llm, agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION , max_iterations=15   # Increase this value as per your needs
-    )
+    prompt = ""
+    if options == "Type your message":
+        prompt = st.text_input("Type your message here:")  # Text input
+    
 
-    # Construct the conversation history as a single string
-    conversation_history = "\n".join(
-        [f"{msg['role']}: {msg['content']}" for msg in st.session_state.messages]
-    )
+    # Handle input and send to LLM
+    if prompt or spoken_text:
+        user_input = prompt if prompt else spoken_text
 
-    # Run the agent with the full conversation history
-    response = search_agent.run(conversation_history)
+        # Add user's input to chat history
+        st.session_state.messages.append({"role": "user", "content": user_input})
+        st.chat_message("user").write(user_input)
 
-    # Add assistant's response to the chat history
-    st.session_state.messages.append({"role": "assistant", "content": response})
-    st.chat_message("assistant").write(response)
+        # Placeholder LLM logic (replace this with actual LLM API call)
+        llm = ChatGroq(model="gemma2-9b-it" , api_key=api_key)
+
+        # Including the avalaible tools
+        tools = [arxiv , wiki]
+
+        search_agent = initialize_agent(
+            tools, llm, agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION, max_iterations=15
+        )
+
+        conversation_history = "\n".join(
+            [f"{msg['role']}: {msg['content']}" for msg in st.session_state.messages]
+        )
+
+        response = search_agent.run(conversation_history)
+
+        # Add assistant's response to chat history
+        st.session_state.messages.append({"role": "assistant", "content": response})
+        st.chat_message("assistant").write(response)
 
 # ------------------- Summarize a PDF with audio-based summarisation and Ask Queries -------------------#
 # Summarize PDF option
