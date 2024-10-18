@@ -20,8 +20,8 @@ from langchain_core.chat_history import BaseChatMessageHistory
 from langchain_community.chat_message_histories import ChatMessageHistory
 from bs4 import BeautifulSoup
 import pandas as pd
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score, mean_squared_error
+from sklearn.model_selection import train_test_split , GridSearchCV , cross_val_score
+from sklearn.metrics import accuracy_score , mean_squared_error
 from sklearn.linear_model import LinearRegression, LogisticRegression
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -36,8 +36,25 @@ import re
 from gtts import gTTS
 # from streamlit.components.v1 import html
 import speech_recognition as sr
-
 import validators.url
+from sklearn.svm import SVC
+import numpy as np
+import pandas as pd
+import streamlit as st
+from sklearn.model_selection import train_test_split, GridSearchCV, cross_val_score
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.svm import SVC
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix, roc_curve, auc
+import matplotlib.pyplot as plt
+import seaborn as sns
+import pandas as pd
+import numpy as np
+from PIL import Image
+import io
+import requests
+import google.generativeai as genai
+
 
 # Page configuration
 st.set_page_config(page_title="Triumo Chatbot: App With Multiple Functionalities")
@@ -49,7 +66,7 @@ st.title("Triumo Chatbot: App With Multiple Functionalities")
 st.subheader("Choose an option to proceed:")
 
 # Options
-option = st.selectbox("Choose an action:", ["Select", "Chat With LLM" , "Summarize a URL" , "Summarise the PDF And Ask Questions" , "Code-Problem Solver" , "Web Scrape and Search the text" , "ML Evaluation and PDF Generation"])
+option = st.selectbox("Choose an action:", ["Select", "Chat With LLM" , "" , "ML Evaluation and PDF Generation" , "Career Recommendations System and Generation Of Cover Letter"])
 
 # Initialize the Groq model
 llm = ChatGroq(model="gemma2-9b-it", groq_api_key=api_key)
@@ -150,7 +167,7 @@ if option == "Chat With LLM":
         st.session_state.messages.append({"role": "assistant", "content": response})
         st.chat_message("assistant").write(response)
 
-# ------------------- Summarize a PDF with audio-based summarisation and Ask Queries -------------------#
+# ------------------- Summarize a PDF and Highilight the Inportant Section -------------------#
 # Summarize PDF option
 elif option == "Summarise the PDF And Ask Questions":
     session_id = st.text_input("Session Id:", value="default Session")
@@ -279,3 +296,42 @@ elif option == "Summarise the PDF And Ask Questions":
             # st.write(f"Session ID: {session_id}")
             st.write(response['answer'])
             # st.write("Chat History:", session_history.messages)
+
+# ------------------- Career Recommendations -------------------# 
+elif option == "Career Recommendations System and Generation Of Cover Letter":
+    def get_gemini_reponse(input_prompt , image):
+        genai.configure(api_key="AIzaSyBjoMgFR9t1f-4naS8mqCtcn5T7liHJero")
+        model = genai.GenerativeModel('gemini-1.5-flash')
+        response = model.generate_content([input_prompt , image])
+        return response.text
+
+    st.title("Career Advisor App")
+    st.write("Upload your resume to recieve personalised career advice!")
+
+    uploaded_file = st.file_uploader("Choose an image file (resume)" , type=["jpg" , "jpeg" , "png"])
+
+    if uploaded_file is not None:
+        image_bytes = uploaded_file.read()
+        image = Image.open(io.BytesIO(image_bytes))
+
+        st.image(image, caption='Uploaded Resume', use_column_width=True)
+
+        input_prompt = """
+        You are a career advisor with a deep understanding of various industries, job roles, and career growth trajectories. Based on the following resume, analyze the candidate's skills, experience, and educational background, and suggest three highly personalized career paths that align with their strengths, interests, and current job market trends.
+
+        For each suggested career path, provide:
+        1. A brief description of the role and why it's a good fit for the candidate.
+        2. The industries where this role is in demand.
+        3. Potential growth opportunities in this career.
+        4. Any additional skills or qualifications that would enhance the candidate's success in this role.
+
+        Additionally, generate a set of five interview questions that are commonly asked for the suggested roles. These questions should help the candidate prepare for interviews in the recommended career paths.
+
+        Please provide the career path suggestions in a concise and motivating manner, and include the interview questions as well.
+
+        Also Give suggestions for resume optimization.
+        """
+
+        response = get_gemini_reponse(input_prompt , image)
+        st.subheader("Career Path Suggestions")
+        st.write(response)   
