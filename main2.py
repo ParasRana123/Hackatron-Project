@@ -73,7 +73,7 @@ st.title("Triumo Chatbot: App With Multiple Functionalities")
 st.subheader("Choose an option to proceed:")
 
 # Options
-option = st.selectbox("Choose an action:", ["Select", "Chat With LLM", "Summarise the PDF(with audio functionality) And Ask Questions" , "Career Recommendations System and Generation Of Interview Questions" , "Cold Email Generator with Skill Gap Analysis"])
+option = st.selectbox("Choose an action:", ["Select", "Chat With LLM", "Summarise the PDF(with audio functionality) And Ask Questions" , "Career Recommendations System and Generation Of Interview Questions" , "Cold Email Generator with Skill Gap Analysis" , "ML Evaluation and PDF Generation"])
 
 # Initialize the Groq model
 llm = ChatGroq(model="gemma2-9b-it", groq_api_key=api_key)
@@ -522,4 +522,273 @@ elif option == "Cold Email Generator with Skill Gap Analysis":
     chain = Chain()
     portfolio = Portfolio()
     # st.set_page_config(layout="wide", page_title="Cold Email Generator", page_icon="📧")
-    create_streamlit_app(chain, portfolio, clean_text)  
+    create_streamlit_app(chain, portfolio, clean_text)      
+
+elif option == "ML Evaluation and PDF Generation":
+    def chatbot_response(user_input):
+        responses = {
+            "start": "Welcome! I can help you evaluate machine learning models. Please upload a dataset to get started.",
+            "upload": "Please upload your dataset (CSV format).",
+            "task": "What task would you like to perform?",
+            "select_features": "Please select your features and target columns.",
+            "evaluate": "I am evaluating the results now... Here are the results.",
+            "error": "Oops! Something went wrong. Please make sure you upload a valid dataset."
+        }
+        return responses.get(user_input.lower(), "I didn't understand that. Could you try again?")
+
+    # Helper function to generate PDF
+    def generate_pdf(report_content, plot_files, dataframe, selected_features, target_feature , task , model_name , model_params , metrics):
+        pdf = FPDF()
+        # pdf.add_page()
+
+        # # Add textual content (general report content)
+        # pdf.set_font("Arial", size=12)
+        # for line in report_content:
+        #     pdf.multi_cell(0, 10, line)
+
+        pdf.add_page()
+        pdf.set_font("Arial" , style="UBI" , size=15)
+        pdf.cell(200 , 10 , txt="Research Paper Published" , ln=True , align="C")
+        pdf.ln(15)
+
+        # Add all feature names without cells
+        pdf.set_font("Arial", style='UB', size=12)
+        pdf.cell(200, 10, txt="All Features In the Dataset", ln=True, align="C")
+        for feature in dataframe.columns:
+            pdf.set_font("Arial", size=10)
+            pdf.multi_cell(0, 7, f"- {feature}")  # Use multi_cell for line breaks
+
+         # Add task and model name to the PDF
+        pdf.set_font("Arial", style='UB', size=12)
+        pdf.cell(200, 10, txt="Technologies and Models Used", ln=True, align="C")
+        pdf.set_font("Arial", size=10)
+        pdf.ln(10)  # Add some spacing
+        pdf.cell(200, 10, txt=f"Task Performed: {task}", ln=True)
+        pdf.cell(200, 10, txt=f"Model Used: {model_name}", ln=True)
+    
+
+        # New page for features used in analysis
+        pdf.add_page()
+        pdf.set_font("Arial", style='UB', size=12)  # Set font to bold and underline
+        pdf.cell(200, 10, txt="Features Used for Data Analysis", ln=True, align="C")
+        pdf.set_font("Arial" , size=10)
+        pdf.cell(200, 10, txt="Top 5 Data Of the Selected Features will be Displayed", ln=True, align="C")
+
+        # Create a table for selected features and target feature
+        pdf.set_font("Arial", size=10)
+
+        # Calculate maximum widths for each column based on headers and data
+        column_widths = []
+        headers = selected_features + [target_feature]
+
+        for header in headers:
+            max_width = pdf.get_string_width(str(header))
+            column_widths.append(max_width + 10)  # Add some padding
+
+        # Add column headers
+        for header, width in zip(headers, column_widths):
+            pdf.cell(width, 10, header, 1, 0, 'C')  # Adjust column width dynamically
+        pdf.ln()
+
+        # Add first 5 rows of data
+        for i in range(min(5, len(dataframe))):  # Limit to 5 rows
+            for col, width in zip(headers, column_widths):
+                pdf.cell(width, 10, str(dataframe.iloc[i][col]), 1, 0, 'C')  # Adjust column width
+            pdf.ln()  # Move to next line after each row
+
+        # For feature Statistics Summary
+        pdf.set_font("Arial" , style='UB' , size=12)
+        pdf.ln(10)
+        pdf.cell(200, 10, txt="Dataset Summary Statistics", ln=True, align="C")
+        pdf.set_font("Arial", size=10)
+
+        # Get summary statistics
+        summary_stats = dataframe.describe().transpose()  # Transpose to have features as rows
+        summary_headers = summary_stats.columns.tolist()
+        summary_data = summary_stats.values.tolist()
+
+        # Calculate maximum widths for summary statistics columns
+        summary_column_widths = [max(pdf.get_string_width(str(item)) for item in [header] + [row[i] for row in summary_data]) + 10
+                                for i, header in enumerate(summary_headers)]
+
+        # Add summary headers to the PDF
+        for header, width in zip(summary_headers, summary_column_widths):
+          pdf.cell(width, 10, header, 1, 0, 'C')  # Adjust column width dynamically
+        pdf.ln()
+
+        # Add summary data to the PDF
+        for row in summary_data:
+          for value, width in zip(row, summary_column_widths):
+             pdf.cell(width, 10, str(value), 1, 0, 'C')  # Adjust column width
+          pdf.ln()  # Move to next line after each row
+
+        # Add model parameters and hyperparameters
+        pdf.add_page()
+        pdf.set_font("Arial", style='UB', size=12)
+        pdf.cell(200, 10, txt="Model Parameters and Hyperparameters", ln=True, align="C")
+        pdf.set_font("Arial", size=10)
+        for param, value in model_params.items():
+            pdf.cell(200, 10, txt=f"{param}: {value}", ln=True)
+
+        pdf.set_font("Arial", style='UB', size=12)
+        pdf.cell(200, 10, txt="Model Performance Metrics", ln=True, align="C")
+        pdf.set_font("Arial", size=10)
+        for metric, value in metrics.items():
+            pdf.cell(200, 10, txt=f"{metric}: {value}", ln=True)    
+
+        # Add plots to the PDF
+        for plot_file in plot_files:
+            pdf.add_page()  # New page for each plot
+            pdf.image(plot_file, x=10, y=10, w=180)  # Adjust the plot size as needed
+
+        # Output PDF as string and convert to BytesIO
+        pdf_output = pdf.output(dest='S').encode('latin1')  # Encode in latin1 for compatibility with PDF
+        return io.BytesIO(pdf_output)  # Convert string to BytesIO object
+
+    # Streamlit Chatbot Interface
+    st.title("ML Model Evaluation Chatbot")
+    st.write("Just type 'upload' in the below box and then enter to upload CSV files for Data Analysis")
+    user_input = st.text_input("You: ", "")
+
+    # Initialize report content list and list for plot files
+    report_content = []
+    plot_files = []
+
+    # Chatbot flow control
+    if user_input.lower() == "start":
+        st.write(chatbot_response("start"))
+    elif user_input.lower() == "upload":
+        st.write(chatbot_response("upload"))
+
+        # File Upload option
+        uploaded_file = st.file_uploader("Upload your dataset file:", type=["csv"])
+
+        if uploaded_file is not None:
+            data = pd.read_csv(uploaded_file)
+            st.write("Dataset Preview:", data.head())
+            report_content.append("Dataset Preview:\n")
+            report_content.append(data.head().to_string())
+            report_content.append("\n")
+
+            # Task Selection
+            user_input_task = st.selectbox("What task would you like to perform?", ["Classification", "Regression"])
+
+            # Chatbot asks for feature and target selection
+            if user_input_task:
+                st.write(chatbot_response("select_features"))
+
+                data = data.dropna()  # Removing null values
+                # Select target and features
+                target_column = st.selectbox("Select the Target Column:", data.columns)
+                feature_column = st.multiselect("Select the feature columns:", data.columns.difference([target_column]))
+
+                if len(feature_column) > 0:
+                    # Split into target and features
+                    X = data[feature_column]
+                    y = data[target_column]
+
+                    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+                    # Train and evaluate the model
+                    st.write(chatbot_response("evaluate"))
+                    model_params = {}
+                    metrics = {}
+                    if user_input_task == "Classification":
+                        models = {
+                            "Logistic Regression": LogisticRegression(),
+                        }
+                        results = {}
+                        for model_name, model in models.items():
+                            model_name_used = model_name
+                            model.fit(X_train, y_train)
+                            y_pred = model.predict(X_test)
+                            accuracy = accuracy_score(y_pred, y_test)
+                            results[model_name] = accuracy
+                            model_params = model.get_params()
+                            metrics['Accuracy'] = accuracy
+                            st.write(f"{model_name} Accuracy: {accuracy:.4f}")
+                            report_content.append(f"{model_name} Accuracy: {accuracy:.4f}\n")
+
+                        # Plot model accuracies
+                        fig, ax = plt.subplots()
+                        ax.barh(list(results.keys()), list(results.values()))
+                        st.pyplot(fig)
+
+                        # Save the plot to a temporary file and store the file path
+                        with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as tmpfile:
+                            plt.savefig(tmpfile.name)
+                            plot_files.append(tmpfile.name)
+
+                        # Draw plots between target and feature columns (For Classification)
+                        for feature in feature_column:
+                            fig, ax = plt.subplots()
+                            try:
+                                sns.barplot(x=data[feature], y=y)
+                                plt.title(f'Bar Plot - {feature} vs {target_column}')
+                                st.pyplot(fig)
+
+                                # Save the feature-target plot to temporary files
+                                with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as tmpfile:
+                                    plt.savefig(tmpfile.name)
+                                    plot_files.append(tmpfile.name)
+                            except Exception as e:
+                                st.error(f"Error generating bar plot for {feature}: {e}")
+
+                    elif user_input_task == "Regression":
+                        models = {
+                            "Linear Regression": LinearRegression(),
+                        }
+                        results = {}
+                        for model_name, model in models.items():
+                            model_name_used = model_name
+                            model.fit(X_train, y_train)
+                            y_pred = model.predict(X_test)
+                            mse = mean_squared_error(y_test, y_pred)
+                            results[model_name] = mse
+                            model_params = model.get_params()
+                            metrics['Mean Squared Error'] = mse
+                            st.write(f"{model_name} Mean Squared Error: {mse:.4f}")
+                            report_content.append(f"{model_name} Mean Squared Error: {mse:.4f}\n")
+
+                        # Plot model errors
+                        fig, ax = plt.subplots()
+                        ax.barh(list(results.keys()), list(results.values()))
+                        st.pyplot(fig)
+
+                        # Save the plot to a temporary file and store the file path
+                        with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as tmpfile:
+                            plt.savefig(tmpfile.name)
+                            plot_files.append(tmpfile.name)
+
+                        # Draw plots between target and feature columns (For Regression)
+                        for feature in feature_column:
+                            fig, ax = plt.subplots()
+                            try:
+                                plt.scatter(data[feature], y, alpha=0.5)
+                                plt.xlabel(feature)
+                                plt.ylabel(target_column)
+                                plt.title(f'Scatter Plot - {feature} vs {target_column}')
+                                st.pyplot(fig)
+
+                                # Save the feature-target plot to temporary files
+                                with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as tmpfile:
+                                    plt.savefig(tmpfile.name)
+                                    plot_files.append(tmpfile.name)
+                            except Exception as e:
+                                st.error(f"Error generating scatter plot for {feature}: {e}")
+
+                    # Convert report content and plot images to downloadable PDF
+                    pdf_output = generate_pdf(report_content, plot_files, data, feature_column, target_column , user_input_task , model_name_used , model_params , metrics)
+
+                    # Allow users to download the report as a PDF with plots
+                    st.download_button(
+                        label="Download Full Report with Plots as PDF",
+                        data=pdf_output,
+                        file_name="ml_evaluation_report.pdf",
+                        mime="application/pdf"
+                    )
+
+                else:
+                    st.write("Please select at least one feature column.")
+            else:
+                st.write(chatbot_response(user_input.lower())) 
