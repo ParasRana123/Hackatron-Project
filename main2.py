@@ -54,7 +54,14 @@ from PIL import Image
 import io
 import requests
 import google.generativeai as genai
-
+import os
+from langchain_core.output_parsers import JsonOutputParser
+from langchain_core.exceptions import OutputParserException
+import chromadb
+import uuid
+import pandas as pd
+import plotly.express as px
+from langchain_community.document_loaders import WebBaseLoader
 
 # Page configuration
 st.set_page_config(page_title="Triumo Chatbot: App With Multiple Functionalities")
@@ -66,7 +73,7 @@ st.title("Triumo Chatbot: App With Multiple Functionalities")
 st.subheader("Choose an option to proceed:")
 
 # Options
-option = st.selectbox("Choose an action:", ["Select", "Chat With LLM" , "" , "ML Evaluation and PDF Generation" , "Career Recommendations System and Generation Of Cover Letter"])
+option = st.selectbox("Choose an action:", ["Select", "Chat With LLM", "Summarise the PDF(with audio functionality) And Ask Questions" , "Career Recommendations System and Generation Of Interview Questions" , "Cold Email Generator with Skill Gap Analysis"])
 
 # Initialize the Groq model
 llm = ChatGroq(model="gemma2-9b-it", groq_api_key=api_key)
@@ -169,7 +176,7 @@ if option == "Chat With LLM":
 
 # ------------------- Summarize a PDF and Highilight the Inportant Section -------------------#
 # Summarize PDF option
-elif option == "Summarise the PDF And Ask Questions":
+elif option == "Summarise the PDF(with audio functionality) And Ask Questions":
     session_id = st.text_input("Session Id:", value="default Session")
 
     if 'store' not in st.session_state:
@@ -298,7 +305,7 @@ elif option == "Summarise the PDF And Ask Questions":
             # st.write("Chat History:", session_history.messages)
 
 # ------------------- Career Recommendations -------------------# 
-elif option == "Career Recommendations System and Generation Of Cover Letter":
+elif option == "Career Recommendations System and Generation Of Interview Questions":
     def get_gemini_reponse(input_prompt , image):
         genai.configure(api_key="AIzaSyBjoMgFR9t1f-4naS8mqCtcn5T7liHJero")
         model = genai.GenerativeModel('gemini-1.5-flash')
@@ -335,3 +342,184 @@ elif option == "Career Recommendations System and Generation Of Cover Letter":
         response = get_gemini_reponse(input_prompt , image)
         st.subheader("Career Path Suggestions")
         st.write(response)   
+
+# ------------------- Cold Email Generator with Skill Gap Analysis -------------------#                  
+elif option == "Cold Email Generator with Skill Gap Analysis":
+  # Clean text function to process the scraped job descriptions
+  def clean_text(text):
+    # Remove HTML tags
+    text = re.sub(r'<[^>]*?>', '', text)
+    # Remove URLs
+    text = re.sub(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', '', text)
+    # Remove special characters
+    text = re.sub(r'[^a-zA-Z0-9 ]', '', text)
+    # Replace multiple spaces with a single space
+    text = re.sub(r'\s{2,}', ' ', text)
+    # Trim leading and trailing whitespace
+    text = text.strip()
+    return text
+  
+  class Chain:
+    def __init__(self):
+        self.llm = ChatGroq(temperature=0, groq_api_key=os.getenv("GROQ_API_KEY"), model_name="llama-3.1-70b-versatile")
+
+    def extract_jobs(self , cleaned_text):
+        prompt_extract = PromptTemplate.from_template(
+            """
+            ### SCRAPED TEXT FROM WEBSITE:
+            {page_data}
+            ### INSTRUCTION:
+            The scraped text is from the career's page of a website.
+            Your job is to extract the job postings and return them in JSON format containing the following keys: `role`, `experience`, `skills`, and `description`.
+            Only return the valid JSON.
+            ### VALID JSON (NO PREAMBLE):
+
+             """
+        )
+
+        chain_extract = prompt_extract | self.llm
+        res = chain_extract.invoke(input={"page_data": cleaned_text})
+        try:
+            json_parser = JsonOutputParser()
+            res = json_parser.parse(res.content)
+        except OutputParserException:
+            raise OutputParserException("Context too big. Unable to parse jobs.")
+        return res if isinstance(res, list) else [res]
+    
+    def write_mail(self , job , links , matching_skills , missing_skills):
+        prompt_email = PromptTemplate.from_template(
+            """
+            ### JOB DESCRIPTION:
+            {job_description}
+
+            ### SKILLS ANALYSIS
+            Matching skills: {matching_skills}
+            Skills to Improve: {missing_skills}
+
+            ### INSTRUCTION:
+            You are Mohan, a business development executive at AtliQ. AtliQ is an AI & Software Consulting company dedicated to facilitating
+            the seamless integration of business processes through automated tools. 
+            Over our experience, we have empowered numerous enterprises with tailored solutions, fostering scalability, 
+            process optimization, cost reduction, and heightened overall efficiency. 
+            Your job is to write a cold email to the client regarding the job mentioned above, emphasizing:
+            - How your matching skills ({matching_skills}) align with the job requirements.
+            - The missing skills ({missing_skills}) and your commitment to improving them.
+            - Also, add the most relevant ones from the following links in points to showcase AtliQ's portfolio: {link_list}
+            Remember you are Mohan, BDE at AtliQ. 
+            Do not provide a preamble.
+            ### EMAIL (NO PREAMBLE):
+
+            """
+        )
+        chain_email = prompt_email | self.llm
+        res = chain_email.invoke({"job_description": str(job), "link_list": links, "matching_skills": ', '.join(matching_skills), "missing_skills": ', '.join(missing_skills)})
+        return res.content
+    
+  class Portfolio:
+    def __init__(self, file_path="my_portfolio.csv"):
+        self.file_path = file_path
+        self.data = pd.read_csv(file_path)
+        self.chroma_client = chromadb.PersistentClient('vectorstore')
+        self.collection = self.chroma_client.get_or_create_collection(name="portfolio")
+
+    def load_portfolio(self):
+        if not self.collection.count():
+            for _, row in self.data.iterrows():
+                self.collection.add(documents=row["Techstack"],
+                                    metadatas={"links": row["Links"]},
+                                    ids=[str(uuid.uuid4())])
+                
+    def query_links(self, skills):
+        return self.collection.query(query_texts=skills, n_results=2).get('metadatas', [])
+    
+  def visualise_job_data(jobs):
+    # Create a DataFrame from the job postings
+    df = pd.DataFrame(jobs)
+
+    # Visualize skills distribution
+    skill_list = [skill for sublist in df['skills'].dropna() for skill in sublist]  # Flatten the skills list
+    skills_df = pd.DataFrame(skill_list, columns=["Skills"])
+    skill_count = skills_df["Skills"].value_counts().reset_index()
+    skill_count.columns = ["Skill", "Count"]
+
+    st.subheader("Skills Distribution")
+    skill_chart = px.pie(skill_count, names="Skill", values="Count", title="Skills Distribution")
+    st.plotly_chart(skill_chart)
+
+    # Visualize job openings by experience level
+    st.subheader("Job Openings by Experience Level")
+    experience_count = df['experience'].value_counts().reset_index()
+    experience_count.columns = ["Experience", "Count"]
+    experience_chart = px.bar(experience_count, x="Experience", y="Count", title="Job Openings by Experience Level")
+    st.plotly_chart(experience_chart)
+
+  def skill_gap_analysis(jobs , user_skills):
+    st.subheader("🔍 Skill Gap Analysis")
+
+    # Convert user's skills to a set for easier comparison
+    user_skills_set = set([skill.strip().lower() for skill in user_skills.split(',')])
+
+    for job in jobs:
+        st.write(f"**Job Role: {job['role']}**")
+        required_skills = set([skill.lower() for skill in job.get('skills', [])])
+
+        # Find matching and missing skills
+        matching_skills = user_skills_set.intersection(required_skills)
+        missing_skills = required_skills - user_skills_set
+
+        st.write(f"Matching Skills: {', '.join(matching_skills)}")
+        st.write(f"Skills You Might Need to Improve or Acquire: {', '.join(missing_skills)}")
+        st.markdown("---")  
+
+  # Streamlit app to run the cold email generator
+  def create_streamlit_app(llm, portfolio, clean_text):
+    st.title("📧 Cold Email Generator with Skill Gap Analysis")
+    url_input = st.text_input("Enter a URL:", value="https://jobs.nike.com/job/R-33460")
+    
+    # Capture user's skills
+    user_skills = st.text_area("Enter your skills (comma-separated):", value="Python, AI, Machine Learning, Data Science")
+
+    submit_button = st.button("Submit")
+
+    if submit_button:
+        try:
+            # Load job description data from the URL
+            loader = WebBaseLoader([url_input])
+            data = clean_text(loader.load().pop().page_content)
+            
+            # Load portfolio data
+            portfolio.load_portfolio()
+
+            # Extract job postings
+            jobs = llm.extract_jobs(data)
+
+            # Visualize the extracted job information
+            visualise_job_data(jobs)
+
+            # Perform skill gap analysis
+            skill_gap_analysis(jobs, user_skills)
+            
+            # For each job, generate an email
+            for job in jobs:
+                skills = job.get('skills', [])
+
+                # perform the skill gap analysis
+                required_skills = set([skill.lower() for skill in skills])
+                user_skills_set = set([skill.strip().lower() for skill in user_skills.split(',')])
+
+                matching_skills = user_skills_set.intersection(required_skills)
+                missing_skills = required_skills - user_skills_set
+
+                links = portfolio.query_links(skills)
+                email = llm.write_mail(job, links , matching_skills , missing_skills)
+
+                st.code(email, language='markdown')
+        except Exception as e:
+            st.error(f"An Error Occurred: {e}")  
+
+  # Main function to run the app
+  if __name__ == "__main__":
+    chain = Chain()
+    portfolio = Portfolio()
+    # st.set_page_config(layout="wide", page_title="Cold Email Generator", page_icon="📧")
+    create_streamlit_app(chain, portfolio, clean_text)  
