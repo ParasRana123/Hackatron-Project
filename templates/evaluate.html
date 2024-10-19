@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ML Evaluation</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha384-k6RqeWeci5ZR/Lv4MR0sA0FfDOMe6fyYh6dM4EwWQeVrN0K6K2v5zjS5aTgXk5F" crossorigin="anonymous">
+    <style>
+        body {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            color: #ffffff;
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            animation: fadeIn 1s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .container {
+            background: rgba(30, 30, 30, 0.9);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            padding: 30px;
+            width: 400px;
+            text-align: center;
+            transition: transform 0.3s;
+        }
+
+        .container:hover {
+            transform: scale(1.05);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            color: #00eaff;
+            text-shadow: 0 0 10px rgba(0, 234, 255, 0.7);
+        }
+
+        label {
+            display: block;
+            margin: 15px 0 5px;
+            font-size: 1rem;
+            color: #f0f0f0;
+            text-align: left;
+        }
+
+        input[type="file"],
+        input[type="text"],
+        select {
+            width: calc(100% - 20px);
+            padding: 10px;
+            border: 1px solid #006eff;
+            border-radius: 5px;
+            background: #1e1e1e;
+            color: #ffffff;
+            transition: border-color 0.3s;
+        }
+
+        input[type="file"]:focus,
+        input[type="text"]:focus,
+        select:focus {
+            border-color: #00eaff;
+            outline: none;
+        }
+
+        button {
+            background: linear-gradient(135deg, #00ffcc, #006eff);
+            border: none;
+            border-radius: 5px;
+            color: #ffffff;
+            padding: 10px 20px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.3s;
+            margin: 10px;
+        }
+
+        button:hover {
+            background: linear-gradient(135deg, #006eff, #00ffcc);
+            transform: scale(1.05);
+        }
+
+        .results {
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        .results ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .results li {
+            background: rgba(255, 255, 255, 0.1);
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+
+        .results li:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .download-link {
+            margin-top: 20px;
+            display: block;
+            color: #00eaff;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .download-link:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                width: 90%;
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            button {
+                padding: 8px 16px;
+            }
+
+            input[type="file"],
+            input[type="text"],
+            select {
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Machine Learning Model Evaluation</h1>
+
+        <form method="POST" enctype="multipart/form-data">
+            <label for="dataset">Upload Dataset (CSV):</label>
+            <input type="file" name="dataset" accept=".csv" required>
+
+            <label for="task">Select Task:</label>
+            <select name="task" required>
+                <option value="Classification">Classification</option>
+                <option value="Regression">Regression</option>
+            </select>
+
+            <label for="target">Select Target Column:</label>
+            <input type="text" name="target" required>
+
+            <label for="features">Select Feature Columns (comma separated):</label>
+            <input type="text" name="features" required>
+
+            <button type="submit">Evaluate</button>
+        </form>
+
+        {% if results %}
+            <div class="results">
+                <h2>Results</h2>
+                <ul>
+                    {% for line in results %}
+                        <li>{{ line }}</li>
+                    {% endfor %}
+                </ul>
+
+                <h2>Download Report</h2>
+                <a class="download-link" href="{{ url_for('download_pdf', filename='report.pdf') }}">Download PDF Report</a>
+            </div>
+        {% endif %}
+    </div>
+</body>
+
+</html>
