@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Analyst App</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #1e1e2d;
+            color: #f0f0f0;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .container {
+            max-width: 800px;
+            margin-top: 50px;
+            padding: 30px;
+            background-color: #2c2c3e;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.7);
+        }
+
+        h1 {
+            color: #00aaff;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        label {
+            color: #f0f0f0;
+        }
+
+        .form-control {
+            background-color: #3a3a5e;
+            color: #f0f0f0;
+            border: 1px solid #555;
+        }
+
+        .form-control:focus {
+            border-color: #00aaff;
+            box-shadow: none;
+            background-color: #333;
+        }
+
+        .btn-primary {
+            background-color: #00aaff;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background-color: #008bcc;
+        }
+
+        .form-group textarea {
+            resize: none;
+        }
+
+        h4 {
+            color: #00aaff;
+            margin-top: 20px;
+        }
+
+        /* Styling for output areas */
+        textarea[readonly] {
+            background-color: #444;
+            color: #ffffff; /* Ensure high contrast */
+            border: 2px solid #00aaff;
+            padding: 15px;
+            border-radius: 5px;
+            line-height: 1.6;
+        }
+
+        /* Add hover effect for better user interaction */
+        textarea[readonly]:hover {
+            background-color: #555;
+            color: white;
+        }
+
+        .output-section {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #333;
+            border: 1px solid #00aaff;
+            border-radius: 8px;
+        }
+
+        .output-section h4 {
+            color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Code Analyst App</h1>
+        <form method="POST" action="/code">
+            <div class="form-group">
+                <label for="prompt">Enter your prompt:</label>
+                <textarea class="form-control" id="prompt" name="prompt" rows="5">{{ prompt }}</textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Generate Response</button>
+        </form>
+        
+        {% if updated_code %}
+        <div class="output-section">
+            <h4>Updated Code:</h4>
+            <textarea class="form-control" rows="10" readonly>{{ updated_code }}</textarea>
+        </div>
+        {% endif %}
+        
+        <!-- {% if summary %}
+        <div class="output-section">
+            <h4>Summary of Improvements:</h4>
+            <textarea class="form-control" rows="6" readonly>{{ summary }}</textarea>
+        </div>
+        {% endif %} -->
+        
+    </div>
+</body>
+</html>
