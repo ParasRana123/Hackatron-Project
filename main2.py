@@ -64,12 +64,12 @@ import plotly.express as px
 from langchain_community.document_loaders import WebBaseLoader
 
 # Page configuration
-st.set_page_config(page_title="Triumo Chatbot: App With Multiple Functionalities")
+st.set_page_config(page_title="ShardAI: App With Multiple Functionalities")
 
 api_key = "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"
 
 # Option Selection
-st.title("Triumo Chatbot: App With Multiple Functionalities")
+st.title("ShardAI: App With Multiple Functionalities")
 st.subheader("Choose an option to proceed:")
 
 # Options
@@ -831,6 +831,7 @@ elif option == "Code Analyst":
     if st.button("Generate Response"):
         if prompt:
             response = generate_response(prompt)
-            st.text_area("Response", value=response, height=200)
+            # st.text_area("Response", value=response, height=200)
+            st.code(response)
         else:
             st.write("Please enter a prompt") 
