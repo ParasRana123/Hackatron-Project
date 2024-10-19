@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Career Advisor</title>
+    <style>
+        /* General page styling */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #1A1A40; /* Dark blue background */
+            color: #EAEAEA; /* Light text */
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Center the content */
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #252550; /* Slightly lighter dark blue */
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Heading styles */
+        h1 {
+            text-align: center;
+            color: #ffffff;
+            font-size: 36px;
+            margin-bottom: 20px;
+        }
+
+        /* Form styling */
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        label {
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #EAEAEA;
+        }
+
+        input[type="file"] {
+            padding: 10px;
+            margin-bottom: 20px;
+            background-color: #333366;
+            border: none;
+            border-radius: 5px;
+            color: #EAEAEA;
+            cursor: pointer;
+        }
+
+        input[type="file"]::-webkit-file-upload-button {
+            background-color: #444488;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        input[type="file"]::-webkit-file-upload-button:hover {
+            background-color: #555599;
+        }
+
+        button[type="submit"] {
+            padding: 10px 20px;
+            background-color: #444488;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #555599;
+        }
+
+        /* Response section */
+        .response {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #333366;
+            border-radius: 10px;
+            color: #EAEAEA;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        /* Highlighting titles within the response */
+        .response h2 {
+            color: #ffffff;
+            margin-bottom: 10px;
+            font-size: 24px;
+        }
+
+        .response p {
+            margin-bottom: 10px;
+        }
+
+        /* For responsive design */
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+
+            h1 {
+                font-size: 28px;
+            }
+
+            input[type="file"] {
+                font-size: 14px;
+            }
+
+            button[type="submit"] {
+                padding: 8px 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Career Advisor</h1>
+
+        {% if response %}
+        <div class="response">
+            {{ response | safe }}
+        </div>
+        {% endif %}
+
+        <form method="POST" enctype="multipart/form-data">
+            <label for="resume">Upload your Resume:</label>
+            <input type="file" name="resume" required>
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+</body>
+</html>
