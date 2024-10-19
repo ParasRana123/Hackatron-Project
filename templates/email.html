@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cold Email Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin: 10px 0 5px;
+        }
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .result {
+            margin-top: 20px;
+            background-color: white;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h1>📧 Cold Email Generator with Skill Gap Analysis</h1>
+    <form method="POST">
+        <label for="url_input">Enter a URL:</label>
+        <input type="text" id="url_input" name="url_input" required>
+        
+        <label for="user_skills">Enter your skills (comma-separated):</label>
+        <textarea id="user_skills" name="user_skills" rows="4" required></textarea>
+        
+        <button type="submit">Submit</button>
+    </form>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul>
+                {% for category, message in messages %}
+                    <li class="{{ category }}">{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+
+    <div class="result">
+        {% if results %}
+            <h2>Generated Emails</h2>
+            {% for job in results %}
+                <h3>Role: {{ job.role }}</h3>
+                <p><strong>Matching Skills:</strong> {{ job.matching_skills | join(", ") }}</p>
+                <p><strong>Missing Skills:</strong> {{ job.missing_skills | join(", ") }}</p>
+                
+                <p><strong>Email:</strong></p>
+                <pre style="white-space: pre-wrap; font-family: inherit;">
+    Subject: {{ job.role }}
+    
+    {{ job.email }}
+                </pre>
+                <hr>
+            {% endfor %}
+        {% endif %}
+    </div>   
+    
+    
+</body>
+</html>

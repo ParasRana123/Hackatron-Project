@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>App Name</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+</head>
+
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@100..900&family=Teko:wght@300..700&display=swap');
+    
+    /* General Styles */
+    body {
+        width: 100%;
+        height: 100%;
+        background-color: black;
+        color: aliceblue;
+        margin: 0;
+        overflow-x: hidden;
+        scroll-behavior: smooth;
+        font-family: 'Kanit', sans-serif;
+    }
+
+    .navbar {
+    padding: 1rem 2rem; /* Adjust padding as needed */
+    background-color: transparent !important; /* Make sure it's transparent */
+    transition: background-color 0.3s ease; /* Smooth transition effect */
+}
+
+/* On hover, change to a semi-opaque background */
+.navbar:hover {
+    background-color: rgba(0, 0, 0, 0.8) !important; /* Dark background on hover */
+}
+
+/* Center the navbar items */
+.navbar-nav {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+    .parent {
+        height: 100vh;
+        scroll-snap-type: y mandatory;
+        overflow-y: scroll;
+        scroll-behavior: smooth;
+    }
+
+    .section1 {
+        background-image: linear-gradient(180deg , rgb(100, 18, 100) , #040323);
+    }
+
+    section {
+        height: 100vh;
+        /* display: flex; */
+        justify-content: center;
+        align-items: center;
+        scroll-snap-align: start;
+    }
+
+    #section2 {
+        align-items: center;
+    }
+
+    .flex {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: sticky;
+        left: 2vw;
+        top: 27vh;
+    }
+
+    .content {
+        /* text-align: center; */
+        display: flex;
+        flex-direction: column;
+        position: sticky;
+        margin: 25px;
+    }
+
+    .content h2 {
+        font-size: 3.5rem;
+        font-family: "Kanit", sans-serif;
+        margin: 10px 0;
+    }
+
+    .content p {
+        font-size: 1.2rem;
+    }
+
+    .buttons {
+        margin: 10px;
+    }
+
+    .learn {
+        border-radius: 10px;
+        padding-top: 15px;
+        padding-bottom: 15px;
+        padding-left: 25px;
+        padding-right: 25px;
+        background-color: #333;
+        color: white;
+        border: 1px solid white;
+    }
+
+    .demo {
+        border-radius: 10px;
+        padding-top: 15px;
+        padding-bottom: 15px;
+        padding-left: 25px;
+        padding-right: 25px;
+        background-color: rgb(46, 6, 46);
+        color: white;
+        border: 1px solid white;
+        margin-right: 30px;
+    }
+
+    /* Header */
+    /* .header {
+        text-align: center;
+        display: flex;
+        justify-content: center;
+        font-size: 3.5rem;
+        font-family: "Kanit", sans-serif;
+        animation: title-fade 10s linear infinite;
+        opacity: 1;
+    } */
+
+    @keyframes title-fade {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.6; }
+    }
+
+    /* Banner Slider */
+    .banner {
+        width: 100%;
+        height: 100vh;
+        text-align: center;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .banner .slider {
+        position: absolute;
+        width: 170px;
+        height: 230px;
+        top: 10%;
+        left: calc(50% - 85px);
+        transform-style: preserve-3d;
+        transform: perspective(1000px);
+        animation: autoRun 60s linear infinite;
+    }
+
+    @keyframes autoRun {
+        from {
+            transform: perspective(1000px) rotateX(-13deg) rotateY(0deg);
+        }
+        to {
+            transform: perspective(1000px) rotateX(-13deg) rotateY(360deg);
+        }
+    }
+
+    .banner .slider .item {
+        position: absolute;
+        inset: 0;
+        transform: rotateY(calc((var(--position) - 1) * (360deg / var(--quantity)))) translateZ(550px);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .banner .slider .item img {
+        width: 100%;
+        height: 70%; /* Adjust the height of the image */
+        border-radius: 10px;
+        transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    }
+
+    .banner .slider .item img:hover {
+        transform: scale(1.1);
+        box-shadow: 5px 5px 25px white, -5px -5px 25px white;
+    }
+
+    .banner .slider .item p {
+        width: 100%;
+        font-size: 1.1rem;
+        color: aliceblue;
+        margin-top: 10px;
+        text-align: center;
+        flex-grow: 1; /* Allows the <p> to grow in remaining space */
+    }
+
+    /* Info Section */
+    .info {
+        /* border: 2px solid white; */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        /* width: 95%;
+        height: 75%; */
+        /* padding: 50px 20px; */
+        border-radius: 10px;
+        /* background-image: linear-gradient(35deg, #802FDE, #E50087, #00AEE5, #14B789, #FDF3CE); */
+        display: flex;
+        justify-content: space-evenly;
+        align-items: center;
+        /* flex-direction: column; */
+        margin: 30px;
+        padding: 20px;
+        gap: 20px;
+    }
+
+    .responsive-img {
+            max-width: 650px; /* Adjust the maximum width to your needs */
+            height: 400px; /* Maintain aspect ratio */
+            border-radius: 30px; /* Optional: Add rounded corners */
+            mask-image: linear-gradient(to right, black 50%, rgba(0, 0, 0, 0));
+            -webkit-mask-image: linear-gradient(to right, black 50%, rgba(0, 0, 0, 0)); /* For WebKit browsers */
+            margin: 12px auto; /* Optional: Center the image and add space around it */
+            margin-left: 12px;
+        }
+
+        .get-started-btn {
+        display: inline-block;
+        padding: 12px 24px;
+        background: linear-gradient(135deg, #ff6f61, #ff3d00);
+        color: white;
+        font-size: 18px;
+        font-weight: bold;
+        border: none;
+        border-radius: 50px;
+        cursor: pointer;
+        text-decoration: none;
+        transition: transform 0.3s, box-shadow 0.3s;
+        margin-top: 20px;
+    }
+
+    .get-started-btn:hover {
+        transform: scale(1.05);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    }
+    
+    .get-started-btn:active {
+        transform: scale(0.95);
+    }
+
+    /* Cube Styles */
+.cube {
+    position: absolute;
+    width: 150px;
+    height: 150px;
+    transform-style: preserve-3d;
+    /* Add perspective to give a 3D look */
+    perspective: 800px;
+    transform: rotateX(10deg) rotateY(-10deg);
+    transform-origin: center;
+    left: 50%;
+    top: 50%;
+    margin-left: -75px; /* Center the cube horizontally */
+    margin-top: -75px; /* Center the cube vertically */
+    /* box-shadow: 0 20px 30px rgba(0, 0, 0, 0.5), inset 0 0 30px rgba(255, 255, 255, 0.1); 3D shadow effect */
+}
+
+/* GIF image inside the cube */
+.cube img {
+    width: 100%;
+    height: 100%;
+    background-color: transparent; /* Ensure the GIF has no background */
+    object-fit: cover;
+    /* Add inner shadow and slight border for depth */
+    /* box-shadow: inset 0px 0px 15px rgba(0, 0, 0, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.2); */
+    border-radius: 10px;
+}
+
+
+    /* .options {
+        font-size: 4em;
+        font-family: "Teko", sans-serif;
+        margin-bottom: 20px;
+    }
+
+    .cards {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 20px;
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+        flex-wrap: wrap;
+    }
+
+    .cards div {
+        padding: 20px;
+        border-radius: 15px;
+        text-align: center;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        cursor: pointer;
+        background-color: rgba(255, 255, 255, 0.1);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    }
+
+    .cards div:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+        color: #5303ca;
+    }
+
+    .cards h2 {
+        font-size: 2rem;
+        margin-bottom: 10px;
+    }
+
+    .cards p {
+        font-size: 1rem;
+        color: #ccc;
+    }
+
+    /* Hover Cursor Animation */
+    /* .circle {
+        height: 24px;
+        width: 24px;
+        border-radius: 50%;
+        background: radial-gradient(circle at 100% 10%, #ffdf42, #ffc83b, #ffb034, #ff972d, #ff7c27, #ff5f20, #ff4119, #ff2212);
+        position: absolute;
+        top: 0;
+        left: 0;
+        pointer-events: none;
+        transition: transform 0.15s ease-out;
+    } */
+
+    /* Responsive Styles */
+    /* @media (max-width: 1024px) {
+        .header { font-size: 3rem; }
+        .cards h2 { font-size: 1.8rem; }
+        .cards p { font-size: 0.95rem; }
+    }
+
+    @media (max-width: 768px) {
+        .header { font-size: 2.5rem; }
+        .banner .slider {
+            width: 140px;
+            height: 190px;
+        }
+        .cards {
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .cards div { padding: 15px; }
+        .cards h2 { font-size: 1.6rem; }
+        .cards p { font-size: 0.9rem; }
+    }
+
+    @media (max-width: 480px) {
+        .header { font-size: 2rem; }
+        .banner .slider {
+            width: 120px;
+            height: 160px;
+        }
+        .cards {
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+        .cards div { padding: 10px; }
+        .cards h2 { font-size: 1.4rem; }
+        .cards p { font-size: 0.85rem; }
+    } */ */
+
+</style>
+
+<body>
+    <div class="parent">
+        <!-- Header Section -->
+         <!-- Header Section -->
+        <section class="section1">
+            <div class="header">
+                <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+                    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo03" aria-controls="navbarTogglerDemo03" aria-expanded="false" aria-label="Toggle navigation">
+                      <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <a class="navbar-brand" href="#">Navbar</a>
+                  
+                    <div class="collapse navbar-collapse" id="navbarTogglerDemo03">
+                      <ul class="navbar-nav mr-auto mt-2 mt-lg-0 mx-auto">
+                        <li class="nav-item active">
+                          <a class="nav-link" href="#">Features <span class="sr-only">(current)</span></a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="#">Pricing</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="#">How To Use</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Blog</a>
+                          </li>
+                      </ul>
+                      <form class="form-inline my-2 my-lg-0">
+                        <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+                        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+                      </form>
+                    </div>
+                  </nav>
+            </div>
+            <div class="flex">
+                <div class="content">
+                    <h2>Boost Efficiency Wth AI-Powered</h2>
+                    <h2>Task Management System</h2>
+                    <p>Step into the future of the internet with the all-in-one task management platform. This advances AI for better communications , streamlined workflows , and intutive conversational interfaces , empowering Individuals and businessmen.</p>
+                    <div class="buttons">
+                        <button class="demo">Get Demo</button>
+                        <button class="learn">Learn More <img src="right_arrow.svg" alt="" height="20px" width="auto" style="filter: invert(1);"></button>
+                    </div>
+                </div>
+                <div class="image">
+                    <img src="{{ url_for('static', filename='images/file.png') }}" alt="" height="300px" width="auto">
+                </div>
+            </div>
+
+        </section>
+
+
+        <!-- Banner Slider Section -->
+        <section class="section2">
+            <div class="banner">
+                <div class="cube">
+                    <!-- <img src="gif1.gif" height="500px" width="500px" alt=""> -->
+                </div>
+                <div class="slider" style="--quantity:8">
+                    <div class="item" style="--position:1" data-target="ml-section">
+                        <img src="{{ url_for('static', filename='images/ml.jpg') }}" alt="ML Model Evaluation">
+                        <p>ML Model Evaluation and PDF Generation</p>
+                    </div>
+                    <div class="item" style="--position:2" data-target="docs-section">
+                        <img src="{{ url_for('static', filename='images/docs1.avif') }}" alt="Model 2">
+                        <p>Document Summarisation</p>
+                    </div>
+                    <div class="item" style="--position:3" data-target="career-section">
+                        <img src="{{ url_for('static', filename='images/career.png') }}" alt="Model 3">
+                        <p>Career Recommendations</p>
+                    </div>
+                    <div class="item" style="--position:4" data-target="dream-section">
+                        <img src="{{ url_for('static', filename='images/dream.jpg') }}" alt="Model 4">
+                        <p>Dream Interpretation</p>
+                    </div>
+                    <div class="item" style="--position:5" data-target="email-section">
+                        <img src="{{ url_for('static', filename='images/email.jpg') }}" alt="Model 5">
+                        <p>Cold Email Generator</p>
+                    </div>
+                    <div class="item" style="--position:6" data-target="code-section">
+                        <img src="{{ url_for('static', filename='images/code3.png') }}" alt="Model 6">
+                        <p>Code Analyst</p>
+                    </div>
+                    <div class="item" style="--position:7" data-target="queries-section">
+                        <img src="{{ url_for('static', filename='images/queries1.jpg') }}" alt="Model 7">
+                        <p>Ask Queries</p>
+                    </div>
+                    <div class="item" style="--position:8" data-target="url-section">
+                        <img src="{{ url_for('static', filename='images/url1.png') }}" alt="Model 8">
+                        <p>Video & URL Summarization</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Info Section -->
+        <section id="ml-section">
+            <div class="info">
+                <div class="img">
+                    <img src="{{ url_for('static', filename='images/ml1.jpg') }}" alt="" class="responsive-img">
+                </div>
+                <div class="text">
+                    <h2>ML Model Evaluation and PDF Generation</h2>
+                    <p>The ML Model Evaluation and PDF Generation feature in the chatbot allows users to seamlessly assess the performance of their machine learning models through comprehensive metrics and visualizations. Once the evaluation is complete, users can generate a detailed PDF report, providing insights and documentation of the model's performance for further analysis and sharing. This feature enhances the user experience by automating the evaluation process and simplifying report generation.</p>
+                    <a href="#" class="get-started-btn" onclick="window.location.href='/evaluate';">Get Started</a>
+                </div>
+            </div>
+        </section>
+        <section id="career-section">
+            <div class="info">
+                <div class="img">
+                    <img src="{{ url_for('static', filename='images/career2.png') }}" alt="" class="responsive-img">
+                </div>
+                <div class="text">
+                    <h2>Personalised Carrer Recpmmendations</h2>
+                    <p>The Career Recommendations feature in the chatbot analyzes user skills, interests, and educational backgrounds to provide personalized career suggestions. It offers insights into job market trends and necessary qualifications, helping users make informed decisions about their career paths and future opportunities. Additionally, the feature includes links to relevant courses and resources to enhance their skillsets.</p>
+                    <a href="#" class="get-started-btn" onclick="window.location.href='/carrer';">Get Started</a>
+                </div>
+        </section>
+        <section id="email-section">
+            <div class="info">
+                <div class="img">
+                    <img src="{{ url_for('static', filename='images/email1.png') }}" alt="" class="responsive-img">
+                </div>
+                <div class="text">
+                    <h2>Cold Email Generator</h2>
+                    <p>The Cold Email Generator feature helps users craft personalized and effective outreach emails for networking or business proposals. By inputting key details about the recipient and the purpose of the email, the generator produces tailored email templates that increase the chances of a positive response. This feature saves time and enhances the professionalism of users' communication efforts.</p>
+                    <a href="#" class="get-started-btn" onclick="window.location.href='/email';">Get Started</a>
+                </div>
+        </section>
+        <section id="dream-section">
+            <div class="info">
+                <div class="img">
+                    <img src="{{ url_for('static', filename='images/dream1.jpg') }}" alt="" class="responsive-img">
+                </div>
+                <div class="text">
+                    <h2>Dream Interpretation</h2>
+                    <p>The Dream Interpretation feature allows users to explore the meanings behind their dreams based on psychological theories and cultural references. By inputting descriptions of their dreams, users receive personalized analyses that help them gain insights into their subconscious thoughts and emotions. This interactive tool fosters self-reflection and understanding, enhancing the overall user experience.</p>
+                    <a href="#" class="get-started-btn" onclick="window.location.href='/dream';">Get Started</a>
+                </div>
+        </section>
+        <section id="url-section">
+            <div class="info">
+                <div class="img">
+                    <img src="{{ url_for('static', filename='images/url.png') }}" alt="" class="responsive-img">
+                </div>
+                <div class="text">
+                    <h2>Youtube Video and URL Summarisation</h2>
+                    <p>The YouTube Video and URL Summarization feature enables users to quickly grasp the main points of videos and web content by generating concise summaries. By simply providing a video link or URL, users receive key insights and highlights, saving time while ensuring they stay informed. This functionality enhances user engagement and facilitates efficient content consumption.</p>
+                    <a href="#" class="get-started-btn" onclick="window.location.href='/summarize';">Get Started</a>
+                </div>
+        </section>
+        <section id="code-section">
+            <div class="info">
+                <div class="img">
+                    <img src="{{ url_for('static', filename='images/code1.jpg') }}" alt="" class="responsive-img">
+                </div>
+                <div class="text">
+                    <h2>Cold Analyst Bot</h2>
+                    <p>The Code Analyst feature assists users in understanding and optimizing their code by providing detailed analysis and suggestions for improvements. It can identify potential bugs, enhance code efficiency, and offer best practices, making it an invaluable tool for developers seeking to improve their programming skills and code quality. This feature streamlines the debugging process and boosts overall productivity.</p>
+                    <a href="#" class="get-started-btn" onclick="window.location.href='/code';">Get Started</a>
+                </div>
+        </section>
+        <section id="docs-section">
+            <div class="info">
+                <div class="img">
+                    <img src="{{ url_for('static', filename='images/docs.jpg') }}" alt="" class="responsive-img">
+                </div>
+                <div class="text">
+                    <h2>Document Summarisation</h2>
+                    <p>The Document Summarization feature condenses lengthy documents into concise summaries, highlighting key points and essential information. It enables users to quickly grasp the main ideas without sifting through entire texts, enhancing productivity and efficiency in information processing. This feature is especially useful for students, researchers, and professionals who need to manage large volumes of written content.</p>
+                    <a href="#" class="get-started-btn" onclick="window.location.href='/summarise_pdf';">Get Started</a>
+                </div>
+        </section>
+        <section id="queries-section">
+            <div class="info">
+                <div class="img">
+                    <img src="{{ url_for('static', filename='images/queries.jpg') }}" alt="" class="responsive-img">
+                </div>
+                <div class="text">
+                    <h2>Ask any Queries</h2>
+                    <p>The Ask Queries feature allows users to pose specific questions and receive accurate, relevant answers instantly. This interactive tool enhances user engagement by providing a conversational experience, enabling users to seek information on various topics easily. It is particularly useful for clarifying doubts, obtaining quick insights, and facilitating informed decision-making.</p>
+                    <a href="#" class="get-started-btn" onclick="window.location.href='/chat';">Get Started</a>
+                </div>
+        </section>
+    </div>
+    <div class="circle"></div>
+
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+
+    <script>
+                document.querySelectorAll('.banner .item').forEach(item => {
+            item.addEventListener('click', function() {
+                const targetId = this.getAttribute('data-target');
+                const targetSection = document.getElementById(targetId);
+                if (targetSection) {
+                    targetSection.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>
