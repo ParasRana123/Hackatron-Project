@@ -28,7 +28,7 @@ The code snippet implements a Streamlit application that allows users to interac
 
 ### Moving Forward we would be adding more functionalities and integrating Flask Web Framework in place of Streamlit....
 
-## How To run this project
+## HOW TO RUN THIS PROJECT
 
 1. Clone or Download this Repository to your local machine.
 2. Then go to your Command prompt in VS Code and create a virtual environment venv with a python version == 3.12.0 using the command **conda create -p python == 3.12 -y**.
