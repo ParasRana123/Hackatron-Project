@@ -31,13 +31,13 @@ The code snippet implements a Streamlit application that allows users to interac
 ## How To run this project
 
 1. Clone or Download this Repository to your local machine.
-2. Then go to your Command prompt in VS Code and create a virtual environment venv with a python version == 3.12.0 using the command **conda create -p python == 3.12 -y**
-3. Install all the libraries mentioned in the requirements.txt file with the command **pip install -r requirements.txt**
-4. Also install llama2 model on your local machine by writing the command **ollama run llama2**
-5. For using the code-problem solver funnctionality , go to your command promple and go to the loaction of your modelfile using the 'cd' command and then write **ollama create codeguru -f modelfile** and then **ollama run codeguru** this will run the model in background
-6. Open your terminal/command prompt from your project directory and run the file main.py by executing the command **streamlit run main2.py**
-7. Go to your browser and type **http://192.168.174.134:8501**
+2. Then go to your Command prompt in VS Code and create a virtual environment venv with a python version == 3.12.0 using the command **conda create -p python == 3.12 -y**.
+3. Install all the libraries mentioned in the requirements.txt file with the command **pip install -r requirements.txt**.
+4. Also install llama2 model on your local machine by writing the command **ollama run llama2**.
+5. For using the code-problem solver funnctionality , go to your command promple and go to the loaction of your modelfile using the 'cd' command and then write **ollama create codeguru -f modelfile** and then **ollama run codeguru** this will run the model in background.
+6. Open your terminal/command prompt from your project directory and run the file main.py by executing the command **streamlit run main2.py**.
+7. Go to your browser and type **http://192.168.174.134:8501**.
 8. Hurray! That's it.
 
 ## NOTE:
-This is just the Prototype of the Model and not the entire code **(i.e we would be incorporating more features)** and also integrating a **FLASK WEB FRAMEWORK** in place of the existing **STREAMLIT**
+This is just the Prototype of the Model and not the entire code **(i.e we would be incorporating more features)** and also integrating a **FLASK WEB FRAMEWORK** in place of the existing **STREAMLIT FRAMEWORK**.
