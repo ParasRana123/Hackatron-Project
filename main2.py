@@ -73,7 +73,7 @@ st.title("ShardAI: App With Multiple Functionalities")
 st.subheader("Choose an option to proceed:")
 
 # Options
-option = st.selectbox("Choose an action:", ["Select", "Chat With LLM", "Summarise the PDF(with audio functionality) And Ask Questions" , "Career Recommendations System and Generation Of Interview Questions" , "Cold Email Generator with Skill Gap Analysis" , "ML Evaluation and PDF Generation" , "Code Analyst"])
+option = st.selectbox("Choose an action:", ["Select", "Ask Queries", "Summarise the PDF(with audio functionality) And Ask Questions" , "Career Recommendations System and Generation Of Interview Questions" , "Cold Email Generator with Skill Gap Analysis" , "ML Evaluation and PDF Generation" , "Code Analyst"])
 
 # Initialize the Groq model
 llm = ChatGroq(model="llama-3.1-70b-versatile", groq_api_key=api_key)
@@ -117,7 +117,7 @@ def recognize_speech():
     return ""
 
 # ------------------------- Normal Chatbot Functionality ------------------------------ #
-if option == "Chat With LLM":
+if option == "Ask Queries":
 
     # Initialize session state for messages (conversation history)
     if "messages" not in st.session_state:
