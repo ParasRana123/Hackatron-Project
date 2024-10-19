@@ -73,10 +73,10 @@ st.title("Triumo Chatbot: App With Multiple Functionalities")
 st.subheader("Choose an option to proceed:")
 
 # Options
-option = st.selectbox("Choose an action:", ["Select", "Chat With LLM", "Summarise the PDF(with audio functionality) And Ask Questions" , "Career Recommendations System and Generation Of Interview Questions" , "Cold Email Generator with Skill Gap Analysis" , "ML Evaluation and PDF Generation"])
+option = st.selectbox("Choose an action:", ["Select", "Chat With LLM", "Summarise the PDF(with audio functionality) And Ask Questions" , "Career Recommendations System and Generation Of Interview Questions" , "Cold Email Generator with Skill Gap Analysis" , "ML Evaluation and PDF Generation" , "Code Analyst"])
 
 # Initialize the Groq model
-llm = ChatGroq(model="gemma2-9b-it", groq_api_key=api_key)
+llm = ChatGroq(model="llama-3.1-70b-versatile", groq_api_key=api_key)
 
 # Initialise the type of embeddings
 embeddings = OllamaEmbeddings()
@@ -792,3 +792,45 @@ elif option == "ML Evaluation and PDF Generation":
                     st.write("Please select at least one feature column.")
             else:
                 st.write(chatbot_response(user_input.lower())) 
+
+# ------------------- Code-Problem Solver -------------------#
+elif option == "Code Analyst":
+    url = "http://localhost:11434/api/generate"
+
+    headers = {
+        'Content-Type': 'application/json'
+    }
+
+    history = []
+
+    def generate_response(prompt):
+        history.append(prompt)
+        final_prompt = "\n".join(history)
+
+        data = {
+            "model": "codeguru",
+            "prompt": f"{final_prompt}\nPlease provide the updated code and summarize the improvements made.",
+            "stream": False
+        }
+
+        response = requests.post(url, headers=headers, data=json.dumps(data))
+
+        if response.status_code == 200:
+            response_text = response.text
+            data = json.loads(response_text)
+            actual_data = data['response']
+            return actual_data
+        else:
+            return f"Error: {response.text}"
+
+    # Streamlit UI
+    st.title("Chatbot Web App")
+
+    prompt = st.text_area("Enter your prompt", height=150)
+
+    if st.button("Generate Response"):
+        if prompt:
+            response = generate_response(prompt)
+            st.text_area("Response", value=response, height=200)
+        else:
+            st.write("Please enter a prompt") 
