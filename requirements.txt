@@ -1,5 +1,6 @@
 langchain
 python-dotenv
+ipykernel
 langchain-community
 pypdf
 beautifulsoup4
@@ -28,6 +29,12 @@ pytube
 gradio
 lxml
 openai
+langchain_nvidia_ai_endpoints
+crewai
+crewai_tools
+pinecone-client
+pinecone-text
+pinecone-notebooks
 numexpr
 sympy
 fpdf
@@ -35,3 +42,7 @@ seaborn
 stability_sdk
 PyMuPDF
 python-docx
+google.generativeai
+pathlib
+googletrans==4.0.0-rc1
+deepL
